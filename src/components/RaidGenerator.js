@@ -104,9 +104,19 @@ class RaidGenerator extends Component {
                         let found = myJson.members.find(function(element) {
                             return element.character.name === playerName;
                         });
+                        if (found.character.spec.role === "TANK") {
+                            tanks += 1
+                            self.namesOfMembers.push(found.character.name)
+                        } else if (found.character.spec.role === "HEALING") {
+                            healers += 1
+                            self.namesOfMembers.push(found.character.name)
+                        } else if (found.character.spec.role === "DPS") {
+                            dps += 1
+                            self.namesOfMembers.push(found.character.name)
+                        }
                         return (found);
                     })
-                    
+                
                 raid.push(newReqPlayer)
             })
         }
