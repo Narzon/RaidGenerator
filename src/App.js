@@ -18,7 +18,13 @@ function App() {
       </header>
 
       <Playerlist />
-
+      <br>
+      </br>
+      <br>
+      </br>
+      <br>
+      </br>
+      <footer>Compiled by Nicolai Antonov </footer>
     </div>
   );
 }

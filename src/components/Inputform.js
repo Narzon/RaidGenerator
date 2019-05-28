@@ -68,7 +68,7 @@ class Inputform extends Component {
         return (
                 <div>
                     <div onChange={this.setRegion.bind(this)}>
-                        <input type="radio" value="US" name="region" checked="checked"/> US&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" value="US" name="region"/> US&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="radio" value="EU" name="region"/> EU
                     </div>
                 <Form>

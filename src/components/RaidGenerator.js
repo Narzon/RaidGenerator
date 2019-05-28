@@ -29,6 +29,15 @@ class RaidGenerator extends Component {
     //USERDEFINED optional array of players to always include
     playersRequired = this.fixNameFormat(this.props.reqPlayers.replace(" ","").split(","))
 
+    fixRole(aString) {
+        if (aString === "DPS") {
+            return "DPS"
+        } else if (aString === "TANK") {
+            return "Tank"
+        } else if (aString === "HEALING") {
+            return "Healer"
+        }
+    }
     fixNameFormat(anArray) {
         let newArray = []
         for (let i = 0; i < anArray.length; i++) {
@@ -169,9 +178,9 @@ class RaidGenerator extends Component {
             }
             let namesArray = result.map((char, index) => {
                 if (index === 0) {
-                    return <div><h1>Raid Size: {raidSize}</h1><div><p>{char.character.name} - {char.character.spec.role} - Rank: {char.rank}</p></div></div>
+                    return <div><h1>Raid Size: {raidSize}</h1><div><p>{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}</p></div></div>
                 } else {
-                    return <div><p>{char.character.name} - {char.character.spec.role} - Rank: {char.rank}</p></div>
+                    return <div><p>{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}</p></div>
                 }
             })
             namesArray.push(
