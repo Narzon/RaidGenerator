@@ -6,29 +6,36 @@ class RaidGenerator extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            generatedRaid: [<h1>Loading ... </h1>]
-
+            renderCounter: 0,
+            generatedRaid: [<h1>Loading ... </h1>],
+            region: this.props.region,
+            realmName: this.props.realm,
+            guildName: this.props.guild,
+            raidSize: this.props.raidSize,
+            tanksWanted: this.props.tanksWanted,
+            minRank: this.props.minRank,
+            healersWanted: this.props.healersWanted,
+            excludeAlts: this.props.allAltLists,
+            namesOfMembers: [],
+            playersRequired: this.fixNameFormat(this.props.reqPlayers.replace(" ", "").split(","))
         }
     }
-    //USERDEFINED default guild
-    region = this.props.region
-    realmName = this.props.realm
-    guildName = this.props.guild
-    raidSize = this.props.raidSize
-    tanksWanted = this.props.tanksWanted
-    
-    //USERDEFINED default rank
-    minRank = this.props.minRank
-    healersWanted = this.props.healersWanted
-    //USERDEFINED default info for excludeAlts - multiple characters belonging to same person
-    excludeAlts = {
-        names1: ["Existnceffs", "Existncekms"],
-        names2: ["Yangwarrior", "Yangabang"],
-        names3: ["Bottiheal", "Botticlap", "Bottistab", "Bottimonk", "Bottishift"]
+    reset() {
+        this.setState({
+            renderCounter: 0,
+            generatedRaid: [<h1>Loading ... </h1>],
+            region: this.props.region,
+            realmName: this.props.realm,
+            guildName: this.props.guild,
+            raidSize: this.props.raidSize,
+            tanksWanted: this.props.tanksWanted,
+            minRank: this.props.minRank,
+            healersWanted: this.props.healersWanted,
+            excludeAlts: this.props.allAltLists,
+            namesOfMembers: [],
+            playersRequired: this.fixNameFormat(this.props.reqPlayers.replace(" ", "").split(","))
+        });
     }
-    //USERDEFINED optional array of players to always include
-    playersRequired = this.fixNameFormat(this.props.reqPlayers.replace(" ","").split(","))
-
     fixRole(aString) {
         if (aString === "DPS") {
             return "DPS"
@@ -45,30 +52,28 @@ class RaidGenerator extends Component {
         }
         return newArray
     }
-    //array of all members already added to raid group
-    namesOfMembers = []
+
     getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
-    // filter guild members array by max level (120) characters over the minimum rank
     filter_120s(member) {
-        return (member.character.level == 120 && member.rank <= this.minRank);
+        return (member.character.level == 120 && member.rank <= this.state.minRank);
     }
     nameIsUnique(aName) {
         let canIUse = true
         // if name exists in raid already, return false
-        if (this.namesOfMembers.indexOf(aName) !== -1) {
+        if (this.state.namesOfMembers.indexOf(aName) !== -1) {
             canIUse = false
             return canIUse
         }
         // check to see if name exists in any of the excludeAlts arrays
-        let altsList = Object.keys(this.excludeAlts)
+        let altsList = Object.keys(this.state.excludeAlts)
         altsList.map((stringName) => {
-            if (this.excludeAlts[stringName].indexOf(aName) !== -1) {
+            if (this.state.excludeAlts[stringName].indexOf(aName) !== -1) {
                 // if it does, check to see if any other alt names in that array exist within raid already
-                this.excludeAlts[stringName].map((name) => {
+                this.state.excludeAlts[stringName].map((name) => {
                     // if one does, return false
-                    if (this.namesOfMembers.indexOf(name) !== -1) {
+                    if (this.state.namesOfMembers.indexOf(name) !== -1) {
                         canIUse = false
                         return canIUse
                     }
@@ -77,8 +82,16 @@ class RaidGenerator extends Component {
         })
         return canIUse
     }
+    refreshMethod() {
+        console.log("current renderCounter: " + this.state.renderCounter)
+        let newCounter = this.state.renderCounter + 1
+        this.setState({ renderCounter: newCounter })
+        this.reset()
+        this.CreateARaid(this.state.healersWanted, this.state.raidSize, this.state.tanksWanted, this.state.playersRequired)
+    }
     CreateARaid = (healerNum, raidSize, tankNum, requiredPlayerArray) => {
-        var idCounter = 0
+        console.log(this.state.excludeAlts)
+
         var self = this
         if (healerNum == undefined) {
             healerNum = 5
@@ -99,40 +112,40 @@ class RaidGenerator extends Component {
         // add all (if any) players from the requiredPlayerArray argument
         if (requiredPlayerArray[0]) {
             requiredPlayerArray.map((playerName) => {
-                let newReqPlayer = 
-                    fetch(`https://${this.region}.api.blizzard.com/wow/guild/${this.realmName}/${this.guildName}?fields=members&locale=en_US&access_token=USCndI8E8ud3fx5XzcX6TeDvPlXrJgJkY0`)
-                    .then(function (response) {
-                        return response.json();
-                    })
-                    .then(function (myJson) {
-                        if (myJson.members === undefined) {
-                            self.setState({ generatedRaid: <h1>Error! Try to fix information!</h1> })
-                            return
-                        }
+                let newReqPlayer =
+                    fetch(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=USCndI8E8ud3fx5XzcX6TeDvPlXrJgJkY0`)
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (myJson) {
+                            if (myJson.members === undefined) {
+                                self.setState({ generatedRaid: <h1>Error! Try to fix information!</h1> })
+                                return
+                            }
 
-                        let found = myJson.members.find(function(element) {
-                            return element.character.name === playerName;
-                        });
-                        if (found.character.spec.role === "TANK") {
-                            tanks += 1
-                            self.namesOfMembers.push(found.character.name)
-                        } else if (found.character.spec.role === "HEALING") {
-                            healers += 1
-                            self.namesOfMembers.push(found.character.name)
-                        } else if (found.character.spec.role === "DPS") {
-                            dps += 1
-                            self.namesOfMembers.push(found.character.name)
-                        }
-                        return (found);
-                    })
-                
+                            let found = myJson.members.find(function (element) {
+                                return element.character.name === playerName;
+                            });
+                            if (found.character.spec.role === "TANK") {
+                                tanks += 1
+                                self.state.namesOfMembers.push(found.character.name)
+                            } else if (found.character.spec.role === "HEALING") {
+                                healers += 1
+                                self.state.namesOfMembers.push(found.character.name)
+                            } else if (found.character.spec.role === "DPS") {
+                                dps += 1
+                                self.state.namesOfMembers.push(found.character.name)
+                            }
+                            return (found);
+                        })
+
                 raid.push(newReqPlayer)
             })
         }
         // fill the raid with appropriate random players
         while (raid.length < raidSize) {
             let aNewPlayer =
-                fetch(`https://${this.region}.api.blizzard.com/wow/guild/${this.realmName}/${this.guildName}?fields=members&locale=en_US&access_token=USCndI8E8ud3fx5XzcX6TeDvPlXrJgJkY0`)
+                fetch(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=USCndI8E8ud3fx5XzcX6TeDvPlXrJgJkY0`)
                     .then(function (response) {
                         return response.json();
                     })
@@ -142,7 +155,7 @@ class RaidGenerator extends Component {
                             return
                         }
                         let maxLevelPlayers = myJson.members.filter((member) => {
-                            return (member.character.level == 120 && member.rank <= self.minRank);
+                            return (member.character.level == 120 && member.rank <= self.state.minRank);
                         })
                         let maxLength = maxLevelPlayers.length
                         // boolean value to keep track of when a randomly selected character is eligible to be added
@@ -155,15 +168,15 @@ class RaidGenerator extends Component {
                             }
                             if (randomPlayer.character.spec.role === "TANK" && tanks < tankNum && self.nameIsUnique(randomPlayer.character.name)) {
                                 tanks += 1
-                                self.namesOfMembers.push(randomPlayer.character.name)
+                                self.state.namesOfMembers.push(randomPlayer.character.name)
                                 acceptablePlayer = true
                             } else if (randomPlayer.character.spec.role === "HEALING" && healers < healerNum && self.nameIsUnique(randomPlayer.character.name)) {
                                 healers += 1
-                                self.namesOfMembers.push(randomPlayer.character.name)
+                                self.state.namesOfMembers.push(randomPlayer.character.name)
                                 acceptablePlayer = true
                             } else if (randomPlayer.character.spec.role === "DPS" && dps < dpsNum && self.nameIsUnique(randomPlayer.character.name)) {
                                 dps += 1
-                                self.namesOfMembers.push(randomPlayer.character.name)
+                                self.state.namesOfMembers.push(randomPlayer.character.name)
                                 acceptablePlayer = true
                             }
                         }
@@ -191,7 +204,11 @@ class RaidGenerator extends Component {
 
     }
     componentDidMount() {
-        this.CreateARaid(this.healersWanted, this.raidSize, this.tanksWanted, this.playersRequired);
+        this.CreateARaid(this.state.healersWanted, this.state.raidSize, this.state.tanksWanted, this.state.playersRequired);
+        this.props.onRef(this)
+    }
+    componentWillUnmount() {
+        this.props.onRef(undefined)
     }
     render() {
         return (
