@@ -1,8 +1,8 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import Playerlist from './components/Playerlist'
 import Jumbotron from 'react-bootstrap/Jumbotron'
+import Inputform from './containers/InputformContainer'
+
 
 function App() {
   return (
@@ -16,8 +16,7 @@ function App() {
         </Jumbotron>
 
       </header>
-
-      <Playerlist />
+      <Inputform />
       <br>
       </br>
       <br>
