@@ -18,7 +18,8 @@ class RaidGenerator extends Component {
             excludeAlts: this.props.allAltLists,
             token: this.props.token,
             namesOfMembers: [],
-            playersRequired: this.fixNameFormat(this.props.reqPlayers.replace(/\s/g, "").split(","))
+            playersRequired: this.fixNameFormat(this.props.reqPlayers.replace(/\s/g, "").split(",")),
+            alreadyRerolled: []
         }
     }
 
@@ -56,6 +57,11 @@ class RaidGenerator extends Component {
         }
         // if a name is required, it will be added automatically and is not unique
         if (this.state.playersRequired.indexOf(aName) !== -1) {
+            canIUse = false
+            return canIUse
+        }
+        // if a name has already been rerolled, return false
+        if (this.state.alreadyRerolled.indexOf(aName) !== -1) {
             canIUse = false
             return canIUse
         }
@@ -218,7 +224,7 @@ class RaidGenerator extends Component {
                 if (requiredPlayerArray.indexOf(char.character.name) !== -1) {
                     return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
                 } else {
-                    return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index+1)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                    return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index+1, char.character.name)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
                 }
             })
             namesArray.push(
@@ -236,8 +242,20 @@ class RaidGenerator extends Component {
         win.focus();
     }
     //generate a new player of the same role for given index
-    refreshOne = (index) => {
-        ////
+    refreshOne = (index, name) => {
+        // remove name of member to be refreshed from array to prevent alts from being excluded
+        let newNamesOfMembers = this.state.namesOfMembers
+        for (let i = 0; i < newNamesOfMembers.length; i++) {
+            if (newNamesOfMembers[i] === name) {
+                newNamesOfMembers.splice(i, 1)
+            }
+        }
+        this.setState({namesOfMembers: newNamesOfMembers})
+        // add name to alreadyRerolled array to prevent it appearing again
+        let newAlreadyRerolled = this.state.alreadyRerolled
+        newAlreadyRerolled.push(name)
+        this.setState({alreadyRerolled: newAlreadyRerolled})
+        // find a valid new random player of the same role 
         let loops = 0
         let oldRole = ""
         if (this.state.generatedRaid[index].key === "DPS" + index) {
@@ -292,7 +310,7 @@ class RaidGenerator extends Component {
                             euToGb = "us"
                         }
                         let returnArray = this.state.generatedRaid
-                        returnArray[index] = <div className="raid-member" key={oldRole+index}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                        returnArray[index] = <div className="raid-member" key={oldRole+index}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index, char.character.name)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
                         this.setState({generatedRaid: []})
                         this.setState({generatedRaid: returnArray})
 
