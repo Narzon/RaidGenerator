@@ -1,0 +1,29 @@
+$theme-colors: (
+  "danger": #ff4136,
+  "primary": #0097f2,
+  "info": #1c6fbc
+  
+);
+$body-bg: #262626;
+.jumbotron {
+    background-color: #1a1a1a!important;
+}
+h1 {
+    color: #f2dd3c;
+}
+p {
+    color: #f2dd3c;
+}
+.form-label {
+    color: #f7fcff
+}
+footer {
+    color: #f2dd3c
+}
+.radioButton {
+    color: #f7fcff
+}
+.raid-member {
+    color: #f7fcff
+}
+@import '~bootstrap/scss/bootstrap';

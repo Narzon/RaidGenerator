@@ -54,15 +54,21 @@ class RaidGenerator extends Component {
             canIUse = false
             return canIUse
         }
+        // if a name is required, it will be added automatically and is not unique
+        if (this.state.playersRequired.indexOf(aName) !== -1) {
+            canIUse = false
+            return canIUse
+        }
         // check to see if name exists in any of the excludeAlts arrays
         let altsList = Object.keys(this.state.excludeAlts)
         altsList.map((stringName) => {
             let fixedArray = this.fixNameFormat(this.state.excludeAlts[stringName])
             if (fixedArray.indexOf(aName) !== -1) {
-                // if it does, check to see if any other alt names in that array exist within raid already
+                console.log("the name trying to be added exists in the following array: "+fixedArray)
+                // if it does, check to see if any other alt names in that array exist within raid or playersRequired already
                 fixedArray.map((name) => {
                     // if one does, return false
-                    if (this.state.namesOfMembers.indexOf(name) !== -1) {
+                    if (this.state.namesOfMembers.indexOf(name) !== -1 || this.state.playersRequired.indexOf(name) !== -1) {
                         console.log("found a name that exists in an array of exceptions")
                         console.log("name that tried to be added: "+aName)
                         console.log("array that it existed in: "+fixedArray)
@@ -104,47 +110,47 @@ class RaidGenerator extends Component {
         let raid = []
         // add all (if any) players from the requiredPlayerArray argument
         if (requiredPlayerArray[0]) {
-            requiredPlayerArray.map((playerName) => {
-                let newReqPlayer =
-                    fetch(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=${this.state.token}`)
-                        .then((response) => {
-                            return response.json();
-                        })
-                        .then((myJson) => {
-                            if (myJson.members === undefined) {
-                                self.setState({ generatedRaid: <h1>Error! Try to fix information!</h1> })
-                                return
-                            }
+            for (let i = 0; i < requiredPlayerArray.length; i++) {
+                let newPlayer = fetch(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=${this.state.token}`)
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((myJson) => {
+                        if (myJson.members === undefined) {
+                            self.setState({ generatedRaid: <h1>Error! Try to fix information!</h1> })
+                            return
+                        }
 
-                            let found = myJson.members.find(function (element) {
-                                return element.character.name === playerName;
-                            });
-                            if (found === undefined) {
-                                couldNotFind = true
-                                console.log("the wrong uri was: ")
-                                console.log(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=${this.state.token}`)
-                                alert("Can't find one or more required members!")
-                                self.setState({ generatedRaid: <h1>Error! Try to fix required players info!</h1> })
-                                return 
-                            }
-                            if (found.character.spec.role === "TANK") {
-                                tanks += 1
-                                self.state.namesOfMembers.push(found.character.name)
-                            } else if (found.character.spec.role === "HEALING") {
-                                healers += 1
-                                self.state.namesOfMembers.push(found.character.name)
-                            } else if (found.character.spec.role === "DPS") {
-                                dps += 1
-                                self.state.namesOfMembers.push(found.character.name)
-                            }
-                            return (found);        
-                        })
-
-                if (!couldNotFind) {
-                    raid.push(newReqPlayer)
-                }
-            })
-        }
+                        let found = myJson.members.find(function (element) {
+                            return element.character.name === requiredPlayerArray[i];
+                        });
+                        if (found === undefined) {
+                            couldNotFind = true
+                            console.log("the wrong uri was: ")
+                            console.log(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=${this.state.token}`)
+                            alert("Can't find one or more required members!")
+                            self.setState({ generatedRaid: <h1>Error! Try to fix required players info!</h1> })
+                            return 
+                        }
+                        if (found.character.spec.role === "TANK") {
+                            tanks += 1
+                            
+                        } else if (found.character.spec.role === "HEALING") {
+                            healers += 1
+                            
+                        } else if (found.character.spec.role === "DPS") {
+                            dps += 1
+                            
+                        }
+                        if (couldNotFind) {
+                            return
+                        }
+    
+                        return found      
+                    })
+                raid.push(newPlayer)
+            }
+        } 
         // fill the raid with appropriate random players
         while (raid.length < raidSize) {
             let aNewPlayer =
@@ -196,22 +202,38 @@ class RaidGenerator extends Component {
                     })
             raid.push(aNewPlayer)
         }
-        
         Promise.all(raid).then(result => {
+            
             if (result[0] === undefined || loops > 4999 || (couldNotFind)) {
                 return
             }
             let namesArray = []
-            //namesArray.push(<div key="header"><h1>Raid Size: {raidSize}</h1></div>)
+            let euToGb = ""
+            if (this.state.region === "EU") {
+                euToGb = "gb"
+            } else {
+                euToGb = "us"
+            }
             namesArray = result.map((char, index) => {
-                return <div key={char.character.spec.role + index}>{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index)}}>Refresh</Button></div>
+                if (requiredPlayerArray.indexOf(char.character.name) !== -1) {
+                    return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                } else {
+                    return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index+1)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                }
             })
             namesArray.push(
                 <h1 key="footer">Tanks: {"" + tankNum}, Healers: {"" + healerNum}, DPS: {"" + dpsNum}</h1>
             )
+            namesArray.unshift(
+            <div key="header"><h1>Raid Size: {raidSize}</h1></div>
+            )
             this.setState({ generatedRaid: namesArray })
-        })
+        }) 
 
+    }
+    handleCharClick = (url)=> {
+        var win = window.open(url, '_blank');
+        win.focus();
     }
     //generate a new player of the same role for given index
     refreshOne = (index) => {
@@ -263,8 +285,14 @@ class RaidGenerator extends Component {
                         if (char === undefined) {
                             return 
                         }
+                        let euToGb = ""
+                        if (this.state.region === "EU") {
+                            euToGb = "gb"
+                        } else {
+                            euToGb = "us"
+                        }
                         let returnArray = this.state.generatedRaid
-                        returnArray[index] = <div key={oldRole+index}>{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index)}}>Refresh</Button></div>
+                        returnArray[index] = <div className="raid-member" key={oldRole+index}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
                         this.setState({generatedRaid: []})
                         this.setState({generatedRaid: returnArray})
 

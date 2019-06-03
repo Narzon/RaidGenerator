@@ -9,7 +9,7 @@ class Inputform extends Component {
         super(props);
         this.state = {
             token: "",
-            authenticateButton: <div><Button type="button" variant="info" href="https://blizzraidgenerator.localtunnel.me/auth/bnet">Login to Blizzard</Button><br></br></div>,
+            authenticateButton: <div><Button type="button" variant="info" href="https://blizzraidgenerator.localtunnel.me/auth/bnet"><img src={require('../blizzLogin.png')} /></Button><br></br></div>,
             addStatus: "",
             altCounters: 0,
             loadThis: "",
@@ -17,15 +17,15 @@ class Inputform extends Component {
             currentButton: <Button variant="primary" type="submit" onClick={this.handleClick}>Create Raid</Button>,
             hideForms: true,
             oldProps: {},
-            radioElements: <div><input type="radio" value="US" name="region" defaultChecked/> US&nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="radio" value="EU" name="region" /> EU</div>
+            radioElements: <div><input type="radio" value="US" name="region"  defaultChecked/> <span className="radioButton">US</span>&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="radio" value="EU" name="region" /> <span className="radioButton">EU</span></div>
         };
         this.getToken = this.getToken.bind(this)
     }
     componentDidMount = () => {
         //display proper page depending on whether authentication was successful
         if (window.location.pathname === "/loginSuccess") {
-            this.setState({authenticateButton: <h2>Obtaining access token ... </h2>})
+            this.setState({authenticateButton: <h1>Obtaining access token ... </h1>})
             this.getToken()
         } else if (window.location.pathname === "/loginFailure") {
             this.setState({authenticateButton: <div><h1>Error logging in, fix credentials!</h1><Button type="button" variant="info" href="https://blizzraidgenerator.localtunnel.me/auth/bnet">Retry Login</Button></div>})
@@ -72,13 +72,13 @@ class Inputform extends Component {
         let oldProps = this.state.oldProps
         if (this.props.region === "EU") {
             this.setState({
-                radioElements: <div><input type="radio" value="US" name="region" /> US&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" value="EU" name="region" defaultChecked /> EU</div>
+                radioElements: <div><input type="radio" value="US" name="region"  /> <span className="radioButton">US</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="radio" value="EU" name="region" defaultChecked /> <span className="radioButton">EU</span></div>
             })
         } else if (this.props.region === "US") {
             this.setState({
-                radioElements: <div><input type="radio" value="US" name="region" defaultChecked/> US&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" value="EU" name="region" /> EU</div>
+                radioElements: <div><input type="radio" value="US" name="region"  defaultChecked/> <span className="radioButton">US</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="radio" value="EU" name="region" /> <span className="radioButton">EU</span></div>
             })
         }
         this.setState({
