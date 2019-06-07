@@ -222,9 +222,9 @@ class RaidGenerator extends Component {
             }
             namesArray = result.map((char, index) => {
                 if (requiredPlayerArray.indexOf(char.character.name) !== -1) {
-                    return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                    return <div id="raidMember" className="d-flex justify-content-sm-between" style={{height: 95}} key={char.character.spec.role + (index+1)}><div><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;</div><div className="raid-member">{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;</div><div className="buttonStyles"><Button size="sm" variant="outline-danger" onClick={()=>{this.removeReq(index+1, char.character.name)}}>Remove</Button>&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div></div>
                 } else {
-                    return <div  className="raid-member" key={char.character.spec.role + (index+1)}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index+1, char.character.name)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                    return <div id="raidMember" className="d-flex justify-content-sm-between" style={{height: 95}} key={char.character.spec.role + (index+1)}><div><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;</div><div className="raid-member">{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;</div><div className="buttonStyles"><Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index+1, char.character.name)}}>Reroll</Button>&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div></div>
                 }
             })
             namesArray.push(
@@ -241,16 +241,24 @@ class RaidGenerator extends Component {
         var win = window.open(url, '_blank');
         win.focus();
     }
-    //generate a new player of the same role for given index
-    refreshOne = (index, name) => {
-        // remove name of member to be refreshed from array to prevent alts from being excluded
+    //remove player from "required" array, then generate new player of same role
+    removeReq = (index, name) => {
+        let reqArray = this.state.playersRequired
+        for (let i = 0; i < reqArray.length; i++) {
+            if (reqArray[i] === name) {
+                reqArray.splice(i, 1)
+            }
+        }
         let newNamesOfMembers = this.state.namesOfMembers
         for (let i = 0; i < newNamesOfMembers.length; i++) {
             if (newNamesOfMembers[i] === name) {
                 newNamesOfMembers.splice(i, 1)
             }
         }
-        this.setState({namesOfMembers: newNamesOfMembers})
+        this.setState({
+            playersRequired: reqArray,
+            namesOfMembers: newNamesOfMembers
+        })
         // add name to alreadyRerolled array to prevent it appearing again
         let newAlreadyRerolled = this.state.alreadyRerolled
         newAlreadyRerolled.push(name)
@@ -265,6 +273,7 @@ class RaidGenerator extends Component {
         } else if (this.state.generatedRaid[index].key === "HEALING" + index) {
             oldRole = "HEALING"
         }
+  
         fetch(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=${this.state.token}`)
                     .then((response) => {
                         return response.json();
@@ -310,7 +319,85 @@ class RaidGenerator extends Component {
                             euToGb = "us"
                         }
                         let returnArray = this.state.generatedRaid
-                        returnArray[index] = <div className="raid-member" key={oldRole+index}><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;<Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index, char.character.name)}}>Reroll</Button><Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div>
+                        returnArray[index] = <div id="raidMember" className="d-flex justify-content-sm-between" style={{height: 95}} key={oldRole+index}><div><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;</div><div className="raid-member">{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;</div><div className="buttonStyles"><Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index, char.character.name)}}>Reroll</Button>&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div></div>
+                        this.setState({generatedRaid: []})
+                        this.setState({generatedRaid: returnArray})
+
+                        
+                    })
+
+    }
+    //generate a new player of the same role for given index
+    refreshOne = (index, name) => {
+        // remove name of member to be refreshed from array to prevent alts from being excluded
+        let newNamesOfMembers = this.state.namesOfMembers
+        for (let i = 0; i < newNamesOfMembers.length; i++) {
+            if (newNamesOfMembers[i] === name) {
+                newNamesOfMembers.splice(i, 1)
+            }
+        }
+        this.setState({namesOfMembers: newNamesOfMembers})
+        // add name to alreadyRerolled array to prevent it appearing again
+        let newAlreadyRerolled = this.state.alreadyRerolled
+        newAlreadyRerolled.push(name)
+        this.setState({alreadyRerolled: newAlreadyRerolled})
+        // find a valid new random player of the same role 
+        let loops = 0
+        let oldRole = ""
+        if (this.state.generatedRaid[index].key === "DPS" + index) {
+            oldRole = "DPS"
+        } else if (this.state.generatedRaid[index].key === "TANK" + index) {
+            oldRole = "TANK"
+        } else if (this.state.generatedRaid[index].key === "HEALING" + index) {
+            oldRole = "HEALING"
+        }
+  
+        fetch(`https://${this.state.region}.api.blizzard.com/wow/guild/${this.state.realmName}/${this.state.guildName}?fields=members&locale=en_US&access_token=${this.state.token}`)
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((myJson) => {
+                        if (myJson.members === undefined) {
+                            this.setState({ generatedRaid: <h1>Error! Try to fix information!</h1> })
+                            return
+                        }
+                        let maxLevelPlayers = myJson.members.filter((member) => {
+                            return (member.character.level === 120 && member.rank <= this.state.minRank);
+                        })
+                        let maxLength = maxLevelPlayers.length
+                        // boolean value to keep track of when a randomly selected character is eligible to be added
+                        let acceptablePlayer = false
+                        let randomPlayer = {}
+                        
+                        while (acceptablePlayer === false && loops < 5000) {
+                            randomPlayer = maxLevelPlayers[this.getRandomInt(maxLength)]
+                            while (randomPlayer.character.spec === undefined) {
+                                randomPlayer = maxLevelPlayers[this.getRandomInt(maxLength)]
+                            }
+                            if (randomPlayer.character.spec.role === oldRole  && this.nameIsUnique(randomPlayer.character.name)) {
+                                this.state.namesOfMembers.push(randomPlayer.character.name)
+                                acceptablePlayer = true
+                            } 
+                            loops += 1
+                        }
+                        if (loops > 4999) {
+                            this.setState({ generatedRaid: <h1>Error! Can't find enough players! Try searching for more ranks.</h1> })
+                            return
+                        }
+                                        
+                        return (randomPlayer);
+                    }).then((char)=> {
+                        if (char === undefined) {
+                            return 
+                        }
+                        let euToGb = ""
+                        if (this.state.region === "EU") {
+                            euToGb = "gb"
+                        } else {
+                            euToGb = "us"
+                        }
+                        let returnArray = this.state.generatedRaid
+                        returnArray[index] = <div id="raidMember" className="d-flex justify-content-sm-between" style={{height: 95}} key={oldRole+index}><div><img src={`http://render-${this.state.region}.worldofwarcraft.com/character/${char.character.thumbnail}`}></img>&nbsp;&nbsp;</div><div className="raid-member">{char.character.name} - {this.fixRole(char.character.spec.role)} - Rank: {char.rank}&nbsp;&nbsp;</div><div className="buttonStyles"><Button size="sm" variant="outline-success" onClick={()=>{this.refreshOne(index, char.character.name)}}>Reroll</Button>&nbsp;<Button onClick={() => {this.handleCharClick(`https://worldofwarcraft.com/en-${euToGb}/character/${this.state.region.toLowerCase()}/${this.state.realmName.replace(" ","-")}/${char.character.name}`)}} size="sm" variant="outline-info">Armory</Button></div></div>
                         this.setState({generatedRaid: []})
                         this.setState({generatedRaid: returnArray})
 
@@ -318,6 +405,7 @@ class RaidGenerator extends Component {
                     })
         ////
     }
+
     componentDidMount() {
         this.CreateARaid(this.state.healersWanted, this.state.raidSize, this.state.tanksWanted, this.state.playersRequired);
         this.props.onRef(this)
@@ -330,7 +418,9 @@ class RaidGenerator extends Component {
         return (
             <div>
                 <br></br>
+                <div className="container" style={{width: 500}}>
                 {this.state.generatedRaid}
+                </div>
             </div>
         )
 
