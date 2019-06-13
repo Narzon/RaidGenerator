@@ -78,7 +78,11 @@ app.get('/auth/bnet/callback', (req, res, next) => {
 })(req, res, next);
 });
 
-app.use(express.static('../build'))
+//app.use(express.static('../build'))
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '/client/build/index.html'));
+  });
+
 
 app.listen(process.env.PORT || 8083, function() {
     MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
