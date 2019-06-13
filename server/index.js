@@ -13,7 +13,7 @@ const DB_PASS = process.env.DB_PASS
 const CONNECTION_URL = `mongodb+srv://${DB_ADMIN}:${DB_PASS}@cluster0-2km2k.mongodb.net/test?retryWrites=true&w=majority`;
 const DATABASE_NAME = "RaidGenerator";
 
-app.use(express.static('../../build'))
+app.use(express.static('../build'))
 app.use(pino);
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
@@ -57,7 +57,7 @@ app.get('/auth/bnet', (req, res, next) => {
     })(req, res, next);
   });
 app.get('/auth/bnet/callback', (req, res, next) => {
-    passport.authenticate('bnet', { failureRedirect: "https://raidgenerator.herokuapp.com" + '/loginFailure' }, (err, user, info) => {
+    passport.authenticate('bnet', { failureRedirect: "http://localhost:3000" + '/loginFailure' }, (err, user, info) => {
         if (err) {
         console.log("error in second route")
         return next(err);
@@ -67,7 +67,7 @@ app.get('/auth/bnet/callback', (req, res, next) => {
             {}, {blizzToken: blizzToken}
         )
         console.log("added token to DB successfully!")
-        res.redirect("https://raidgenerator.herokuapp.com"  + '/loginSuccess' );
+        res.redirect("http://localhost:3000"  + '/loginSuccess' );
         
 })(req, res, next);
 });
