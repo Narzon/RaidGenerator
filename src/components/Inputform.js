@@ -9,7 +9,7 @@ class Inputform extends Component {
         super(props);
         this.state = {
             token: "",
-            authenticateButton: <div><Button type="button" variant="info" href="https://blizzraidgenerator.localtunnel.me/auth/bnet"><img src={require('../blizzLogin.png')} /></Button><br></br></div>,
+            authenticateButton: <div><Button type="button" variant="info" href="https://raidgenerator.herokuapp.com/auth/bnet"><img src={require('../blizzLogin.png')} /></Button><br></br></div>,
             addStatus: "",
             altCounters: 0,
             loadThis: "",
@@ -28,7 +28,7 @@ class Inputform extends Component {
             this.setState({authenticateButton: <h1>Obtaining access token ... </h1>})
             this.getToken()
         } else if (window.location.pathname === "/loginFailure") {
-            this.setState({authenticateButton: <div><h1>Error logging in, fix credentials!</h1><Button type="button" variant="info" href="https://blizzraidgenerator.localtunnel.me/auth/bnet">Retry Login</Button></div>})
+            this.setState({authenticateButton: <div><h1>Error logging in, fix credentials!</h1><Button type="button" variant="info" href="https://raidgenerator.herokuapp.com/auth/bnet">Retry Login</Button></div>})
         }
     }
     getToken = () => {

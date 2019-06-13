@@ -23,7 +23,7 @@ var database, collection;
 passport.use(new BnetStrategy({
     clientID: process.env.BNET_ID,
     clientSecret: process.env.BNET_SECRET,
-    callbackURL: "https://blizzraidgenerator.localtunnel.me/auth/bnet/callback",
+    callbackURL: "https://raidgenerator.herokuapp.com/auth/bnet/callback",
     region: 'us'
 }, (accessToken, refreshToken, profile, done) => {
     // Profile returns the Bnet Id, Battletag
@@ -57,7 +57,7 @@ app.get('/auth/bnet', (req, res, next) => {
     })(req, res, next);
   });
 app.get('/auth/bnet/callback', (req, res, next) => {
-    passport.authenticate('bnet', { failureRedirect: "http://localhost:3000" + '/loginFailure' }, (err, user, info) => {
+    passport.authenticate('bnet', { failureRedirect: "https://raidgenerator.herokuapp.com" + '/loginFailure' }, (err, user, info) => {
         if (err) {
         console.log("error in second route")
         return next(err);
@@ -67,7 +67,7 @@ app.get('/auth/bnet/callback', (req, res, next) => {
             {}, {blizzToken: blizzToken}
         )
         console.log("added token to DB successfully!")
-        res.redirect("http://localhost:3000"  + '/loginSuccess' );
+        res.redirect("https://raidgenerator.herokuapp.com"  + '/loginSuccess' );
         
 })(req, res, next);
 });
