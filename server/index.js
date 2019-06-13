@@ -13,7 +13,7 @@ const DB_PASS = process.env.DB_PASS
 const CONNECTION_URL = `mongodb+srv://${DB_ADMIN}:${DB_PASS}@cluster0-2km2k.mongodb.net/test?retryWrites=true&w=majority`;
 const DATABASE_NAME = "RaidGenerator";
 
-app.use(express.static('../build'))
+
 app.use(pino);
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
@@ -77,6 +77,8 @@ app.get('/auth/bnet/callback', (req, res, next) => {
         
 })(req, res, next);
 });
+
+app.use(express.static('../build'))
 
 app.listen(process.env.PORT || 8083, function() {
     MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
