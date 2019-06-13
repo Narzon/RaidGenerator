@@ -47,6 +47,12 @@ app.get('/tokenFromDB', (req, res) => {
     })
   });
 
+//TEST
+app.get("/aWeirdPath", (req,res,next) => {
+    res.send("paths work on server!")
+})
+
+
 app.get('/auth/bnet', (req, res, next) => {
     passport.authenticate('bnet', 
     (err, user, info) => {
