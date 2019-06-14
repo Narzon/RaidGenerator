@@ -13,7 +13,7 @@ const CONNECTION_URL = `mongodb+srv://${DB_ADMIN}:${DB_PASS}@cluster0-2km2k.mong
 const DATABASE_NAME = "RaidGenerator";
 
 
-
+var database, collection;
 MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
     if(error) {
         throw error;
@@ -26,7 +26,7 @@ MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) =
 let startServer = () =>{
     app.use(BodyParser.json());
     app.use(BodyParser.urlencoded({ extended: true }));
-    var database, collection;
+    
     // Use the BnetStrategy within Passport.
     passport.use(new BnetStrategy({
         clientID: process.env.BNET_ID,
