@@ -37,7 +37,7 @@ let startServer = () =>{
         // Profile returns the Bnet Id, Battletag
         return done(null, profile);
     }))
-
+    app.use(express.static(path.join(__dirname, '../public')));
     //attempt to grab token from database
     app.get('/tokenFromDB', (req, res) => {
         let token = ""
@@ -89,10 +89,10 @@ let startServer = () =>{
     })(req, res, next);
     });
 
-    app.use(express.static('../public'))
-    app.get('/', function (req, res) {
-        res.sendFile(path.join(__dirname, '../public', 'index.html'));
-      });
+    
+    //app.get('/', function (req, res) {
+    //    res.sendFile(path.join(__dirname, '../public', 'index.html'));
+    //  });
       
 
 
