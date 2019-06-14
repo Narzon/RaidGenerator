@@ -39,6 +39,7 @@ class Inputform extends Component {
         })
         .then((data) => {
             this.setState({token: data.token, authenticateButton: "", hideForms: false})
+            console.log("This is the token received: "+this.state.token)
         })     
     }
     handleClick = (event) => {

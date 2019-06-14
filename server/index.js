@@ -42,9 +42,6 @@ let startServer = () =>{
     app.get('/tokenFromDB', (req, res) => {
         let token = ""
         res.setHeader('Content-Type', 'application/json');
-        token = collection.findOne({})
-        res.send(JSON.stringify({token: `${token.blizzToken}`}))
-        /*
         MongoClient.connect(CONNECTION_URL)
         .then((db)=>{
             let aDatabase = db.db(DATABASE_NAME)
@@ -56,8 +53,7 @@ let startServer = () =>{
         }).then((token)=>{
             res.send(JSON.stringify({token: `${token.blizzToken}`}))
         })
-        */
-    });
+      });
 
     //TEST
     app.get("/aWeirdPath", (req,res,next) => {
