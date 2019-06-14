@@ -90,9 +90,10 @@ let startServer = () =>{
     });
 
     app.use(express.static('../build'))
-    //app.get('*', (req, res) => {
-    //    res.sendFile(path.join(__dirname, '../build/index.html'));
-    //});
+    app.get('/', function (req, res) {
+        res.sendFile(path.join(__dirname, '../build', 'index.html'));
+      });
+      
 
 
     app.listen(process.env.PORT || 8083, function() {
