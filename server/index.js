@@ -13,9 +13,6 @@ const CONNECTION_URL = `mongodb+srv://${DB_ADMIN}:${DB_PASS}@cluster0-2km2k.mong
 const DATABASE_NAME = "RaidGenerator";
 
 
-mongoose.set("debug", true);
-mongoose.Promise = global.Promise;
-
 
 MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
     if(error) {
