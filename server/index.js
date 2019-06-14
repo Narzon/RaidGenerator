@@ -5,7 +5,7 @@ var app = express();
 const passport = require('passport');
 var BnetStrategy = require('passport-bnet').Strategy;
 const MongoClient = require("mongodb").MongoClient
-
+var path = require('path');
 const BodyParser = require("body-parser")
 const DB_ADMIN = process.env.DB_ADMIN
 const DB_PASS = process.env.DB_PASS
