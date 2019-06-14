@@ -89,6 +89,14 @@ let startServer = () =>{
     })(req, res, next);
     });
 
+    app.get('/*', function(req, res) {
+        res.sendFile(path.join(__dirname, '../public'), function(err) {
+          if (err) {
+            res.status(500).send(err)
+          }
+        })
+      })
+
     
     //app.get('/', function (req, res) {
     //    res.sendFile(path.join(__dirname, '../public', 'index.html'));
