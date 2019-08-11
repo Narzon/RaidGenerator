@@ -1,4 +1,4 @@
-WoW Raid Generator
+WoW RaidGenerator
 code compiled by Nicolai Antonov
 
 View at https://raidgenerator.herokuapp.com (requires valid Battle.net account)
