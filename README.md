@@ -1,8 +1,9 @@
 WoW RaidGenerator
 code compiled by Nicolai Antonov
 
-View at https://raidgenerator.herokuapp.com (requires valid Battle.net account)
-or view demo at https://drive.google.com/file/d/1aviNXgv_3d-Dhyt75MycDYU-tzUjVZTY/view
+Hosted at https://raidgenerator.herokuapp.com (requires valid Battle.net account)
+
+View **demo** at https://drive.google.com/file/d/1aviNXgv_3d-Dhyt75MycDYU-tzUjVZTY/view
 
 This web app will take in any World of Warcraft guild and randomly generate a valid raid configuration based on provided parameters. The app is build in React and served by a Node.js Express server. Notable packages used include:
 * React Bootstrap
